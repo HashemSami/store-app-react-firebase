@@ -4,24 +4,31 @@ import "./SignIn.styles.scss";
 import FormInput from "../form-input/FormInput.component";
 import CustomButton from "../custom-button/CustomButton.component";
 
-import { signInWithGoogle } from "../../firebase/firebase.utils";
+import { auth, signInWithGoogle } from "../../firebase/firebase.utils";
 
 const SignIn = () => {
-  const [state, setState] = useState({
+  const [formElements, setFormElements] = useState({
     email: "",
     password: ""
   });
 
-  const handleSubmit = event => {
+  // this function will look into our database to confirm user signing in
+  const handleSubmit = async event => {
     event.preventDefault();
 
-    setState({ email: "", password: "" });
+    const { email, password } = formElements;
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+      setFormElements({ email: "", password: "" });
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const handleChange = event => {
     const { value, name } = event.target;
 
-    setState({ ...state, [name]: value });
+    setFormElements({ ...formElements, [name]: value });
   };
 
   return (
@@ -30,9 +37,9 @@ const SignIn = () => {
       <span>Sign in with your email and password</span>
 
       <form onSubmit={handleSubmit}>
-        <FormInput name="email" type="email" value={state.email} handleChange={handleChange} label="email" required />
+        <FormInput name="email" type="email" value={formElements.email} handleChange={handleChange} label="email" required />
 
-        <FormInput name="password" type="password" value={state.password} handleChange={handleChange} label="password" required />
+        <FormInput name="password" type="password" value={formElements.password} handleChange={handleChange} label="password" required />
 
         <div className="buttons">
           <CustomButton type="submit">Sign in</CustomButton>

@@ -52,7 +52,6 @@ const SignUp = () => {
       ...formElements,
       [name]: value
     });
-    console.log(formElements);
   };
 
   const { displayName, email, password, confirmPassword } = formElements;
