@@ -20,6 +20,42 @@ const config = {
   measurementId: "G-B3Z046ZVEV"
 };
 
+// will create a function that will take out authed user data
+// and store it in our database in the users collection
+export const createUserProfileDocument = async (userAuth, additionalData) => {
+  // if the user logged of, the userAuth will be null, so we will return from this method
+  if (!userAuth) return;
+  console.log("once");
+
+  // if we have the object from the onAuthStateChanged method in the App componenet
+  // first will check if the user exists in our database
+  // will call the ref rence that will have some method that we can perform to our data
+  // we could have .get() .add() .delete()
+  const userRef = firestore.doc(`users/${userAuth.uid}`);
+  // we also have a snap shot of the data so we can have information about the data we get
+  const snapshot = await userRef.get();
+
+  // snapshot will have a property exists that will give us true if the user exists in iur database
+  if (!snapshot.exists) {
+    // to create the document in our database we have to use the userRef Object, not the snapshot object
+    const { displayName, email } = userAuth;
+    const createdAt = new Date();
+
+    try {
+      await userRef.set({
+        displayName,
+        email,
+        createdAt,
+        ...additionalData
+      });
+    } catch (error) {
+      console.log("error creating user", error.message);
+    }
+  }
+  // will return the user ref so we can use it for other thing on the app
+  return userRef;
+};
+
 // init app
 firebase.initializeApp(config);
 
